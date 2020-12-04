@@ -1,0 +1,8 @@
+D:\Code\WebAPI.Core\WebAPI.Chilkat\bin\Debug\WebAPI.Chilkat.dll
+D:\Code\WebAPI.Core\WebAPI.Chilkat\bin\Debug\WebAPI.Chilkat.pdb
+D:\Code\WebAPI.Core\WebAPI.Chilkat\bin\Debug\ChilkatDotNet46.dll
+D:\Code\WebAPI.Core\WebAPI.Chilkat\obj\Debug\WebAPI.Chilkat.csprojAssemblyReference.cache
+D:\Code\WebAPI.Core\WebAPI.Chilkat\obj\Debug\WebAPI.Chilkat.csproj.CoreCompileInputs.cache
+D:\Code\WebAPI.Core\WebAPI.Chilkat\obj\Debug\WebAPI.Chilkat.csproj.CopyComplete
+D:\Code\WebAPI.Core\WebAPI.Chilkat\obj\Debug\WebAPI.Chilkat.dll
+D:\Code\WebAPI.Core\WebAPI.Chilkat\obj\Debug\WebAPI.Chilkat.pdb
