@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.IO;
 using System.Net;
 using HD.Helper.Common;
+using System.Threading.Tasks;
 
 namespace HD.Common.Net
 {
@@ -146,6 +147,36 @@ namespace HD.Common.Net
 
         #endregion
 
+        #region DownLoad
+
+        public static async Task DownloadImags(string url, List<KeyValuePair<string, string>> paramArray, string newpath)
+        {
+            if (paramArray != null)
+                url = url + "?" + BuildParam(paramArray);
+
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    System.IO.FileStream fs;
+                    byte[] urlContents = await client.GetByteArrayAsync(url);
+                    fs = new System.IO.FileStream(newpath, System.IO.FileMode.CreateNew);
+                    fs.Write(urlContents, 0, urlContents.Length);
+
+                    fs.Dispose();
+                    fs.Close();
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+
+
+        #endregion
         private static string Encode(string content, Encoding encode = null)
         {
             if (encode == null) return content;
