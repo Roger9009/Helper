@@ -345,6 +345,34 @@ namespace HD.Helper.Common
 
             }
         }
+
+        /// <summary>
+        /// 对象转换成Json Null的部分移除掉
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string ObjectToJson_NotNull(object data)
+        {
+            try
+            {
+                var jsonSetting = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                IsoDateTimeConverter convert = new IsoDateTimeConverter();
+                convert.DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+                jsonSetting.Converters.Add(convert);
+
+                var json = JsonConvert.SerializeObject(data, Formatting.Indented, jsonSetting);
+
+                return json;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+
         /// <summary>
         /// Json转换成<T>对象
         /// </summary>

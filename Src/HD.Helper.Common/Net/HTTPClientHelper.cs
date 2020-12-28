@@ -37,44 +37,80 @@ namespace HD.Common.Net
         /// get请求，可以对请求头进行多项设置
         /// </summary>
         /// <param name="url"></param>
-        /// <param name="paramArray"></param>
+        /// <param name="dicHead"></param>
         /// <returns></returns>
-        public static string GetResponseByGet(string url, List<KeyValuePair<string, string>> paramArray)
+        public static string GetResponseByGet(string url, Dictionary<string, string> dicHead = null)
         {
             string result = "";
 
-            var httpclient = HTTPClientHelper.HttpClient;
-
-            if (paramArray != null)
-                url = url + "?" + BuildParam(paramArray);
-
-            var response = httpclient.GetAsync(url).Result;
-            if (response.IsSuccessStatusCode)
+            using (HttpClient http = new HttpClient())
             {
-                Stream myResponseStream = response.Content.ReadAsStreamAsync().Result;
-                StreamReader myStreamReader = new StreamReader(myResponseStream, Encoding.GetEncoding("utf-8"));
-                result = myStreamReader.ReadToEnd();
-                myStreamReader.Close();
-                myResponseStream.Close();
+                if (dicHead != null)
+                {
+                    if (dicHead != null)
+                    {
+                        foreach (var item in dicHead)
+                        {
+                            http.DefaultRequestHeaders.Add(item.Key, item.Value);
+                        }
+                    }
+                }
+
+                HttpResponseMessage message = null;
+                var task = http.GetAsync(url);
+                message = task.Result;
+
+                if (message != null && message.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    using (message)
+                    {
+                        result = message.Content.ReadAsStringAsync().Result;
+                    }
+                }
+                else
+                {
+                    result = url + " 调试不通。" + message.StatusCode.ToString();
+                }
             }
 
             return result;
         }
 
 
-        public static string GetResponseBySimpleGet(string url)
-        {
-            return GetResponseBySimpleGet(url, null);
-        }
-        public static string GetResponseBySimpleGet(string url, List<KeyValuePair<string, string>> paramArray)
-        {
 
+        public static string GetResponseBySimpleGet(string url, Dictionary<string, string> dicHead = null)
+        {
+            string result = "";
             var httpclient = HTTPClientHelper.HttpClient;
 
-            if (paramArray != null)
-                url = url + "?" + BuildParam(paramArray);
+            try
+            {
 
-            var result = httpclient.GetStringAsync(url).Result;
+
+                using (HttpClient http = new HttpClient())
+                {
+                    if (dicHead != null)
+                    {
+                        if (dicHead != null)
+                        {
+                            foreach (var item in dicHead)
+                            {
+                                http.DefaultRequestHeaders.Add(item.Key, item.Value);
+                            }
+                        }
+                    }
+
+                    HttpResponseMessage message = null;
+                    result = http.GetStringAsync(url).Result;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                result = url + " " + ex.Message;
+            }
+
+
             return result;
         }
 
@@ -88,42 +124,39 @@ namespace HD.Common.Net
         /// <param name="url"></param>
         /// <param name="paramArray"></param>
         /// <returns></returns>
-        public static string HttpPostRequestAsync(string Url, List<KeyValuePair<string, string>> paramArray, string ContentType = "application/json")
+        public static string PostRequestAsync(string url, string ContentType = "application/json")
         {
-            return HttpPostRequestAsync(Url, paramArray, null, ContentType);
+            return PostRequestAsync(url, null, null, ContentType);
         }
 
-        public static string HttpPostRequestAsync(string Url, object objBody, string ContentType = "application/json")
+        public static string PostRequestAsync(string url, string strBody, string ContentType = "application/json")
         {
-            return HttpPostRequestAsync(Url, null, objBody, ContentType);
+            return PostRequestAsync(url, strBody, null, ContentType);
         }
 
-        public static string HttpPostRequestAsync(string Url, List<KeyValuePair<string, string>> paramArray, object objBody, string ContentType = "application/x-www-form-urlencoded")
+        public static string PostRequestAsync(string url, string strBody, Dictionary<string, string> dicHead = null, string ContentType = "application/json")
         {
             string result = "";
-
-            var postData = BuildParam(paramArray);
-            string strBody = string.Empty;
-
-            if (paramArray != null)
-                Url = string.Concat(new string[] { Url, "?", postData });
-
-            if (objBody != null)
-                strBody = JsonHelper.ObjectToJson(objBody);
 
             try
             {
                 using (HttpClient http = new HttpClient())
                 {
-                    //http.DefaultRequestHeaders.Add("User-Agent", @"Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)");
-                    //http.DefaultRequestHeaders.Add("Accept", @"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+                    if (dicHead != null)
+                    {
+                        foreach (var item in dicHead)
+                        {
+                            http.DefaultRequestHeaders.Add(item.Key, item.Value);
+                        }
+                    }
 
                     HttpResponseMessage message = null;
 
                     using (StringContent content = new StringContent(strBody, Encoding.UTF8, ContentType))
                     {
                         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(ContentType));
-                        var task = http.PostAsync(Url, content);
+                        var task = http.PostAsync(url, content);
                         message = task.Result;
                     }
 
@@ -134,11 +167,15 @@ namespace HD.Common.Net
                             result = message.Content.ReadAsStringAsync().Result;
                         }
                     }
+                    else
+                    {
+                        result = url + " 调试不通。" + message.StatusCode.ToString();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                result = ex.Message;
             }
             return result;
         }
@@ -149,10 +186,9 @@ namespace HD.Common.Net
 
         #region DownLoad
 
-        public static async Task DownloadImags(string url, List<KeyValuePair<string, string>> paramArray, string newpath)
+        public static async Task DownloadImags(string url, string newpath)
         {
-            if (paramArray != null)
-                url = url + "?" + BuildParam(paramArray);
+
 
             try
             {
@@ -185,7 +221,8 @@ namespace HD.Common.Net
 
         }
 
-        private static string BuildParam(List<KeyValuePair<string, string>> paramArray, Encoding encode = null)
+
+        public static string BuildParam(Dictionary<string, string> paramArray, Encoding encode = null)
         {
             string url = "";
 
